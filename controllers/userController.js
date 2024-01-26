@@ -10,7 +10,7 @@ const UserController = {
 
             // Validate inputs
             if (!validator.isEmail(email) || !validator.isStrongPassword(password)) {
-                return res.status(400).json({ error: 'Invalid email or password format' });
+                return res.status(400).json({ error: 'Invalid email or password formats' });
             }
 
             // Check if user with the same email already exists
