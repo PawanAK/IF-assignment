@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Snowflake } = require("@theinternetfolks/snowflake");
-const validator = require('validator');
+const Validator = require('validatorjs');
 const UserModel = require('../models/user');
 
 const your_secret_key = process.env.SECRET;
@@ -10,9 +10,19 @@ const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Validate inputs
-        if (!validator.isEmail(email) || !validator.isStrongPassword(password)) {
-            return res.status(400).json({ error: 'Invalid email or password format' });
+        // Validation rules
+        const rules = {
+            name: 'required|string',
+            email: 'required|email',
+            password: 'required|min:8' // Adjust the minimum password length as needed
+        };
+
+        // Validator instance
+        const validation = new Validator(req.body, rules);
+
+        if (validation.fails()) {
+            // Validation failed, return error messages
+            return res.status(400).json({ error: validation.errors.all() });
         }
 
         // Check if user with the same email already exists
@@ -45,9 +55,18 @@ const signin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validate inputs
-        if (!validator.isEmail(email) || !validator.isStrongPassword(password)) {
-            return res.status(400).json({ error: 'Invalid email or password format' });
+        // Validation rules for signin (if needed)
+        const rules = {
+            email: 'required|email',
+            password: 'required|min:8'
+        };
+
+        // Validator instance
+        const validation = new Validator(req.body, rules);
+
+        if (validation.fails()) {
+            // Validation failed, return error messages
+            return res.status(400).json({ error: validation.errors.all() });
         }
 
         // Check if the user exists
