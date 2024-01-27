@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middleware/authMiddleware');
-const UserController = require('../controllers/UserController');
+
+const UserController = require('../controllers/userController');
 
 // POST /v1/auth/signup
 router.post('/signup', UserController.signup);
@@ -10,6 +10,6 @@ router.post('/signup', UserController.signup);
 router.post('/signin', UserController.signin);
 
 // GET /v1/auth/me
-router.get('/me', authMiddleware, UserController.getMe);
+router.get('/me', UserController.getMe);
 
 module.exports = router;

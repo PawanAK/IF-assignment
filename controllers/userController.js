@@ -10,19 +10,17 @@ const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Validation rules
-        const rules = {
-            name: 'required|string|min:2',
+        // Validate inputs
+        const validationRules = {
+            name: 'required|min:2',
             email: 'required|email',
-            password: 'required|min:6'
+            password: 'required|min:6',
         };
 
-        // Validator instance
-        const validation = new Validator(req.body, rules);
+        const validation = new Validator({ name, email, password }, validationRules);
 
         if (validation.fails()) {
-            // Validation failed, return error messages
-            return res.status(400).json({ error: validation.errors.all() });
+            return res.status(400).json({ error: 'Invalid input format', details: validation.errors.all() });
         }
 
         // Check if user with the same email already exists
@@ -59,18 +57,16 @@ const signin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validation rules for signin
-        const rules = {
+        // Validate inputs
+        const validationRules = {
             email: 'required|email',
-            password: 'required|min:6'
+            password: 'required|min:6',
         };
 
-        // Validator instance
-        const validation = new Validator(req.body, rules);
+        const validation = new Validator({ email, password }, validationRules);
 
         if (validation.fails()) {
-            // Validation failed, return error messages
-            return res.status(400).json({ error: validation.errors.all() });
+            return res.status(400).json({ error: 'Invalid input format', details: validation.errors.all() });
         }
 
         // Check if the user exists
@@ -98,11 +94,22 @@ const signin = async (req, res) => {
 
 const getMe = async (req, res) => {
     try {
-        // Assuming you have middleware that attaches the user information to the request object
-        const { userId } = req.user;
+        // Extract the token from the Authorization header
+        const authHeader = req.headers.authorization;
+
+        // Check if the token is present and properly formatted
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ error: 'Unauthorized - No valid token provided' });
+        }
+
+        // Extract the token (remove 'Bearer ' prefix)
+        const token = authHeader.substring(7);
+
+        // Verify the token
+        const decodedToken = jwt.verify(token, your_secret_key);
 
         // Retrieve user details from the database
-        const user = await UserModel.findById(userId).select('-password');
+        const user = await UserModel.findById(decodedToken.userId).select('-password');
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -112,8 +119,12 @@ const getMe = async (req, res) => {
         res.status(200).json(user);
     } catch (error) {
         console.error(error);
+        if (error.name === 'JsonWebTokenError') {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
 
 module.exports = { signup, signin, getMe };
