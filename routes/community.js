@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const CommunityController = require('../controllers/CommunityController');
+const authMiddleware = require('../middlewares/authMiddleware');
+const communityController = require('../controllers/communityController');
 
-// POST /v1/community
-router.post('/', CommunityController.createCommunity);
-
-// GET /v1/community
-router.get('/', CommunityController.getAllCommunities);
+router.post('/create', authMiddleware, communityController.createCommunity);
+router.get('/all', authMiddleware, communityController.getAllCommunities);
 
 module.exports = router;
