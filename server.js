@@ -1,30 +1,13 @@
-require('dotenv').config()
+require('dotenv').config();
 
 const express = require('express');
 const mongoose = require('mongoose');
-// const bodyParser = require('body-parser');
-// const authMiddleware = require('./middleware/authMiddleware'); // Import your authentication middleware
-// const authRoutes = require('./routes/auth');
-// const communityRoutes = require('./routes/community');
-// const roleRoutes = require('./routes/role');
-// const memberRoutes = require('./routes/member');
+const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3000; // Use a default port if not specified
 
 // MongoDB connection setup
-
-
-// Middleware
-// app.use(bodyParser.json());
-
-// // Routes
-// app.use('/v1/auth', authRoutes);
-// app.use('/v1/community', communityRoutes);
-// app.use('/v1/role', roleRoutes);
-// app.use('/v1/member', authMiddleware, memberRoutes); // Protect member routes with authentication middleware
-
-// Start the server
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('connected to database')
@@ -35,4 +18,24 @@ mongoose.connect(process.env.MONGO_URI)
     })
     .catch((err) => {
         console.log(err)
-    }) 
+    })
+
+
+// Middleware
+app.use(bodyParser.json());
+
+// Routes
+const authRoutes = require('./routes/auth');
+const communityRoutes = require('./routes/community');
+const roleRoutes = require('./routes/role');
+const memberRoutes = require('./routes/member');
+
+app.use('/v1/auth', authRoutes);
+app.use('/v1/community', communityRoutes);
+app.use('/v1/role', roleRoutes);
+app.use('/v1/member', memberRoutes);
+
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
