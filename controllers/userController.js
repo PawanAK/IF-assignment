@@ -12,9 +12,9 @@ const signup = async (req, res) => {
 
         // Validation rules
         const rules = {
-            name: 'required|string',
+            name: 'required|string|min:2',
             email: 'required|email',
-            password: 'required|min:8' // Adjust the minimum password length as needed
+            password: 'required|min:6'
         };
 
         // Validator instance
@@ -44,7 +44,11 @@ const signup = async (req, res) => {
 
         await newUser.save();
 
-        res.status(201).json({ message: 'User registered successfully' });
+        // Generate and send a JWT token for immediate signin
+        const token = jwt.sign({ userId: newUser._id }, your_secret_key, { expiresIn: '1h' });
+
+        // Return the access token in the response
+        res.status(201).json({ meta: { access_token: token } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -55,10 +59,10 @@ const signin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Validation rules for signin (if needed)
+        // Validation rules for signin
         const rules = {
             email: 'required|email',
-            password: 'required|min:8'
+            password: 'required|min:6'
         };
 
         // Validator instance
@@ -83,7 +87,9 @@ const signin = async (req, res) => {
 
         // Generate and send a JWT token
         const token = jwt.sign({ userId: user._id }, your_secret_key, { expiresIn: '1h' });
-        res.status(200).json({ token });
+
+        // Return the access token in the response
+        res.status(200).json({ meta: { access_token: token } });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -92,28 +98,20 @@ const signin = async (req, res) => {
 
 const getMe = async (req, res) => {
     try {
-        const token = req.headers.authorization;
+        // Assuming you have middleware that attaches the user information to the request object
+        const { userId } = req.user;
 
-        if (!token) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-
-        const decodedToken = jwt.verify(token, your_secret_key);
-
-        const userId = decodedToken.userId;
-
+        // Retrieve user details from the database
         const user = await UserModel.findById(userId).select('-password');
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        // Return the user details in the response
         res.status(200).json(user);
     } catch (error) {
         console.error(error);
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(401).json({ error: 'Invalid token' });
-        }
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
