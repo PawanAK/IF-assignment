@@ -1,6 +1,5 @@
 const { Snowflake } = require("@theinternetfolks/snowflake");
 
-
 const CommunityModel = require('../models/community');
 const UserModel = require('../models/user');
 
@@ -24,7 +23,7 @@ const createCommunity = async (req, res) => {
 
         await newCommunity.save();
 
-        res.status(201).json({ message: 'Community created successfully' });
+        res.status(201).json({ message: 'Community created successfully', community: newCommunity });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -33,12 +32,16 @@ const createCommunity = async (req, res) => {
 
 const getAllCommunities = async (req, res) => {
     try {
+        // Retrieve all communities
         const communities = await CommunityModel.find();
+
         res.status(200).json(communities);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+
+// Add more community-related controller functions as needed
 
 module.exports = { createCommunity, getAllCommunities };
