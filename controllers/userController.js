@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-import { Snowflake } from "@theinternetfolks/snowflake";
+const { Snowflake } = require("@theinternetfolks/snowflake");
 const validator = require('validator');
 const UserModel = require('../models/user');
 

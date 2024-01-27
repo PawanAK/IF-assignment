@@ -36,6 +36,3 @@ app.use('/v1/role', roleRoutes);
 app.use('/v1/member', memberRoutes);
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
