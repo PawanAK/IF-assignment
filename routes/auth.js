@@ -12,4 +12,4 @@ router.post('/signin', UserController.signin);
 // GET /v1/auth/me
 router.get('/me', authMiddleware, UserController.getMe);
 
-module.exports = router;
+module.exports = router
